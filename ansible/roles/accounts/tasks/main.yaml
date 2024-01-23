@@ -1,0 +1,8 @@
+---
+- name: Setup user account
+  ansible.builtin.user:
+    name: ctrmgr
+    groups:
+      - docker
+    append: true
+    shell: /bin/bash

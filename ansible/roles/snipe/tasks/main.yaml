@@ -1,0 +1,24 @@
+---
+- name: Check for compose file
+  ansible.builtin.stat:
+    path: /usr/lib/snipe/docker-compose.yaml
+  register: compose_stat
+
+- name: Teardown existing infrastructure
+  community.docker.docker_compose:
+    project_src: /usr/lib/snipe
+    state: absent
+  when: compose_stat.exists
+
+- name: Copy compose file
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: /usr/lib/snipe/docker-compose.yaml
+    mode: u=rw,g=,o=
+    owner: ctrmgr
+    group: ctrmgr
+    backup: true
+
+- name: Start new infrastructure
+  community.docker.docker_compose:
+    project_src: /usr/lib/snipe
