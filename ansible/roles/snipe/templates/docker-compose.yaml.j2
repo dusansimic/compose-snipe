@@ -6,11 +6,39 @@ services:
     volumes:
       - snipeit:/var/lib/snipeit
       - snipeit-logs:/var/www/html/storage/logs
+    networks:
+      - snipe
+    links:
+      - snipe-db:db
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_KEY: key
+      APP_URL: https://snipe.energypulse.rs
+      APP_TIMEZONE: Europe/Belgrade
+      APP_LOCALE: en
+      PHP_UPLOAD_LIMIT: 100
+    ports:
+      - "8000:80"
   snipe-db:
     image: docker.io/library/mysql:5.6
+    volumes:
+      - snipeit-db:/var/lib/mysql
+    networks:
+      - snipe
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: snipeit
+      MYSQL_USER: snipeit
+      MYSQL_PASSWORD: snipeitpass
 
 volumes:
   snipeit:
     external: true
   snipeit-logs:
     external: true
+  snipeit-db:
+    extrenal: true
+
+networks:
+  snipe:
