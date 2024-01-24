@@ -1,13 +1,22 @@
 ---
 - name: Setup repository
   block:
-    - name: Downlaod repository key
+    - name: Add repository key
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
-        dest: /etc/apt/keyrings/docker.gpg
-        mode: u=rw,g=r,o=r
+        dest: /etc/apt/keyrings/docker.asc
+        mode: u=rw,g=,o=
         owner: root
         group: root
+        checksum: sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570
+    - name: Remove dearmored key
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/docker.gpg
+        state: absent
+    - name: Dearmor repository key
+      ansible.builtin.command:
+        cmd: gpg -o /etc/apt/keyrings/docker.gpg --dearmor /etc/apt/keyrings/docker.asc
+        creates: /etc/apt/keyrings/docker.gpg
     - name: Add repository
       ansible.builtin.apt_repository:
         filename: docker
@@ -27,3 +36,10 @@
     name: docker.service
     enabled: true
     state: started
+
+- name: Install Ansible dependencies
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-docker
+      - python3-yaml

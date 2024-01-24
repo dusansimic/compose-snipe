@@ -5,10 +5,18 @@
   register: compose_stat
 
 - name: Teardown existing infrastructure
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: /usr/lib/snipe
     state: absent
-  when: compose_stat.exists
+  when: compose_stat.stat.exists
+
+- name: Create directories
+  ansible.builtin.file:
+    path: /usr/lib/snipe
+    state: directory
+    mode: u=rw,g=r,o=r
+    owner: ctrmgr
+    group: ctrmgr
 
 - name: Copy compose file
   ansible.builtin.template:
@@ -20,5 +28,5 @@
     backup: true
 
 - name: Start new infrastructure
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: /usr/lib/snipe
