@@ -13,7 +13,11 @@ Docker Compose sets up the following containers:
 
 These roles require `community.docker>=3.6.0` collection to function correctly.
 A requirements file is available in `ansible/requirements.yaml`. To make sure,
-the correct collection is installed, run `ansible-galaxy collection install -r ansible/requirements.yaml`.
+the correct collection is installed, run:
+
+```sh
+ansible-galaxy collection install -r ansible/requirements.yaml
+```
 
 ## Snipe-IT
 
