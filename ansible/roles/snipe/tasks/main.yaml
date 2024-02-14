@@ -4,11 +4,22 @@
     path: /usr/lib/snipe/docker-compose.yaml
   register: compose_stat
 
-- name: Teardown existing infrastructure
-  community.docker.docker_compose_v2:
-    project_src: /usr/lib/snipe
-    state: absent
+- name: Compose exists
   when: compose_stat.stat.exists
+  block:
+    - name: Backup compose file
+      ansible.builtin.copy:
+        src: /usr/lib/snipe/docker-compose.yaml
+        remote_src: true
+        dest: /usr/lib/snipe/docker-compose.yaml.{{ ansible_facts.date_time.date }}@{{ ansible_facts.date_time.time }}~
+        mode: u=rw,g=r,o=r
+        owner: ctrmgr
+        group: ctrmgr
+      register: backup_file
+    - name: Teardown existing infrastructure
+      community.docker.docker_compose_v2:
+        project_src: /usr/lib/snipe
+        state: absent
 
 - name: Create directories
   ansible.builtin.file:
@@ -25,8 +36,25 @@
     mode: u=rw,g=,o=
     owner: ctrmgr
     group: ctrmgr
-    backup: true
 
 - name: Start new infrastructure
   community.docker.docker_compose_v2:
     project_src: /usr/lib/snipe
+  ignore_errors: true
+  register: new_infra
+
+- name: Restore backup compose
+  when: new_infra.failed
+  block:
+    - name: Copy backup
+      ansible.builtin.copy:
+        src: "{{ backup_file.dest }}"
+        remote_src: true
+        dest: /usr/lib/snipe/docker-compose.yaml
+        mode: u=rw,g=,o=
+        owner: ctrmgr
+        group: ctrmgr
+    - name: Remove backup
+      ansible.builtin.file:
+        path: "{{ backup_file.dest }}"
+        state: absent
