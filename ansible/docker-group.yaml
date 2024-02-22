@@ -1,0 +1,13 @@
+---
+- name: Add users to docker group
+  hosts: all
+  become: true
+  tasks:
+    - name: Add vagrant user to docker group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups:
+          - docker
+        state: present
+      loop:
+        - vagrant
