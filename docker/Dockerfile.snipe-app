@@ -1,0 +1,4 @@
+ARG VERSION
+FROM docker.io/snipe/snipe-it:${VERSION}
+
+RUN chmod -R 777 /var/www/html/storage
