@@ -9,7 +9,10 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"redhat.ansible"
+				"redhat.ansible",
+				"jeff-hykin.better-dockerfile-syntax",
+				"ms-azuretools.vscode-docker",
+				"GitHub.vscode-github-actions"
 			]
 		}
 	},
