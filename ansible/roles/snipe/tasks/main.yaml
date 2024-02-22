@@ -15,7 +15,7 @@
         mode: u=rw,g=r,o=r
         owner: ctrmgr
         group: ctrmgr
-      register: backup_file
+      register: compose_backup_file
     - name: Teardown existing infrastructure
       community.docker.docker_compose_v2:
         project_src: /usr/lib/snipe
@@ -43,12 +43,12 @@
   ignore_errors: true
   register: new_infra
 
-- name: Restore backup compose
+- name: Restore backup files
   when: new_infra.failed
   block:
     - name: Copy backup
       ansible.builtin.copy:
-        src: "{{ backup_file.dest }}"
+        src: "{{ compose_backup_file.dest }}"
         remote_src: true
         dest: /usr/lib/snipe/docker-compose.yaml
         mode: u=rw,g=,o=
@@ -56,5 +56,5 @@
         group: ctrmgr
     - name: Remove backup
       ansible.builtin.file:
-        path: "{{ backup_file.dest }}"
+        path: "{{ compose_backup_file.dest }}"
         state: absent
